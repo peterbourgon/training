@@ -41,6 +41,39 @@ func TestRobot(t *testing.T) {
 	}
 }
 
+type slowMockRunner struct{}
+
+func (slowMockRunner) name() string {
+	return "slow"
+}
+
+func (slowMockRunner) run(distance int) int {
+	return 42
+}
+
+type fastMockRunner struct{}
+
+func (fastMockRunner) name() string {
+	return "fast"
+}
+
+func (fastMockRunner) run(distance int) int {
+	return 1
+}
+
+func TestRace(t *testing.T) {
+	var (
+		r1 = slowMockRunner{}
+		r2 = fastMockRunner{}
+	)
+
+	have := race(100, r1, r2)
+
+	if "fast" != have {
+		t.Errorf("run(%d): want %v, have %v", 100, "fast", have)
+	}
+}
+
 func BenchmarkBaby1M(b *testing.B) {
 	benchmark(b, baby{}, 1)
 }
